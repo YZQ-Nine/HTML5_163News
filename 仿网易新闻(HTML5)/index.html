@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css"/>
+    <script type="text/javascript" charset="utf-8">
+    //相当于 ios 的初始化方法
+      	mui.init({
+      		// 配置上拉加载
+      		pullRefresh:{
+      			container:"#refreshContainer", // 上拉加载的容器标示，可以是 class  id 等任何选择器
+      			up:{
+      				contentnomore:"没有更多的数据了", // 可选的
+      				contentrefresh:"正在加载数据。。。。。",// 可选的参数
+      				callback:pullfresh   //回调函数，这个必填
+      				
+      			}
+      		}
+      	});
+      		
+      	
+      	
+//    			}
+		
+//	//Tab切换,找到容器组件
+//	mui(".mui-bar-tab").on('tap','.mui-tab-item',function(e){
+//		$('.content-div').css({"display":"none"});
+//		$('.content-div').eq($(this).index()).css({"display":"block"});
+//		mui('.mui-scroll-wrapper').scroll().scrollTo(0,0,0);//100毫秒滚动到顶
+//	});	
+		
+      	// 相当于 ios 的 viewdidLoad
+      	mui.plusReady(function(){
+      	
+      	
+//      		 定义 tabBar 的切换
+      		mui(".mui-bar-tab").on('tap','.mui-tab-item',function(error){
+      			$('.content-div').css({"display":"none"});
+      			$('.content-div').eq($(this).index()).css({"display":"block"});
+      		});
+      		
+      		
+      		
+      		
+      	// 1、轮播图数据的请求
+      	mui.ajax('http://c.m.163.com/nc/article/headline/T1348647853363/0-20.html?from=toutiao&passport=&devId=OPdeGFsVSojY0ILFe6009pLR%2FMsg7TLJv5TjaQQ6Hpjxd%2BaWU4dx4OOCg2vE3noj&size=20&version=5.5.3&spever=false&net=wifi&lat=&lon=&ts=1456985286&sign=%2BY9lXIDh3W7j69unWYNEiSG3So2sMceBy%2B%2FiFf2ZfHh48ErR02zJ6%2FKXOnxX046I&encryption=1&canal=appstore',{
+      		dataType:'json',
+      		type:'get',
+      		timeout:10000,
+      		success:function(data){
+//  		  			alert('轮播图请求成功');
+					loopDataHandle(data);
+			
+      		},
+      		error:function(){
+      			alert('轮播图请求失败');
+      		}
+      	});
+      	
+      	
+      	//2、列表数据的请求
+      	mui.ajax('http://c.m.163.com/nc/article/headline/T1348647853363/30-20.html?from=toutiao&passport=&devId=OPdeGFsVSojY0ILFe6009pLR%2FMsg7TLJv5TjaQQ6Hpjxd%2BaWU4dx4OOCg2vE3noj&size=20&version=5.5.3&spever=false&net=wifi&lat=&lon=&ts=1456985878&sign=oDwq9mBweKUtUuiS%2FPvB015PyTDKHSxuyuVq2076XQB48ErR02zJ6%2FKXOnxX046I&encryption=1&canal=appstore',{
+      		dataType:'json',
+      		type:'get',
+      		timeout:10000,
+      		success:function(data){
+      			listDataHandle(data);
+      		},
+      		error:function(){
+      			alert('列表数据请求失败');
+      		}
+      	});
+      	
+      	
+      	// 3、视频列表的数据请求
+      	mui.ajax('http://c.3g.163.com/nc/video/home/10-10.html',{
+      		dataType:'json',
+      		type:'get',
+      		timeout:10000,
+      		success:function(data){
+      			videoDataHandle(data);
+      		},
+      		error:function(){
+      			alert('视频接口请求失败');
+      		}
+      	});
+      	
+      		
+      	// plusready 结束	
+      	});
+      	
+      	
+      	
+     // 轮播图的数据处理
+    function loopDataHandle (data) {
+  	  	var dataArray =	data.T1348647853363[0].ads;
+  	  	var item = null;
+  	  	
+  	  	var last = dataArray.length - 1;
+  	  	item = '<div class="mui-slider-item"><a href="#"><img src='+dataArray[last].imgsrc+'><p class="mui-slider-title">'+dataArray[last].title+'</p></a></div>';
+  	  	$('#sliderImageGroup').append(item);	  	
+  	  	for (var i = 0; i < dataArray.length; i++) { 		
+		item = '<div class="mui-slider-item"><a href="#"><img src='+dataArray[i].imgsrc+'><p class="mui-slider-title">'+dataArray[i].title+'</p></a></div>';
+		$('#sliderImageGroup').append(item);	
+		$('#sliderPageControl').append('<div class="mui-indicator"></div>');
+  	  }
+  	  	
+  	  	item = '<div class="mui-slider-item"><a href="#"><img src='+dataArray[0].imgsrc+'><p class="mui-slider-title">'+dataArray[0].title+'</p></a></div>';
+  	  	$('#sliderImageGroup').append(item);	
+  	  	
+  	  	
+  	 	// 初始化轮播图  interval  设置的是轮播时间  默认为0  单位毫秒
+  	 	mui('.mui-slider').slider({
+  	 		interval:1000
+  	 	});
+  	  
+  	  	
+    }
+    
+    
+    
+ 
+   
+   
+   // 上拉加载的函数
+   function pullfresh () {
+   		mui.ajax('http://c.m.163.com/nc/article/headline/T1348647853363/30-20.html?from=toutiao&passport=&devId=OPdeGFsVSojY0ILFe6009pLR%2FMsg7TLJv5TjaQQ6Hpjxd%2BaWU4dx4OOCg2vE3noj&size=20&version=5.5.3&spever=false&net=wifi&lat=&lon=&ts=1456985878&sign=oDwq9mBweKUtUuiS%2FPvB015PyTDKHSxuyuVq2076XQB48ErR02zJ6%2FKXOnxX046I&encryption=1&canal=appstore',{
+   			dataType:'json',
+   			type:'get',
+   			timeout:10000,
+   			success:function(data){
+			console.log("adadadadadadaddada");
+   			listDataHandle(data);
+   			// 注意。。。。。如果 ajax 请求，数据成功回调之后，必须停止上拉加载的过程
+   			mui('#refreshContainer').pullRefresh().endPullupToRefresh(); // 结束刷新
+   			
+   			},
+   			error:function(){
+   				
+   			}
+   		});
+   			
+   }
+   
+   
+     // 新闻列表数据的处理
+   function listDataHandle (data) {
+   	var dataArray = data.T1348647853363;
+   	for (var i = 0; i < dataArray.length; i++) {
+// 		imgsrc title digest
+		var cell = '<div class="mui-table-view-cell mui-media"><a><img class="mui-media-object mui-pull-left" src = '+dataArray[i].imgsrc+'><div class = "mui-media-body"><p class = "mui-ellipsis">'+dataArray[i].title+'</p><p class="mui-ellipsis">'+dataArray[i].digest+'</p></div></a></div>';
+		$('#xinwenList').append(cell);
+   	}	 		
+   }
+   
+   
+  // 视频数据的处理
+  
+  function videoDataHandle (data) {
+  	var dataArray = data.videoList;
+  	for (var i = 0; i < dataArray.length; i++) {
+  		var cell = '<li class="mui-table-view-cell"><div><strong>'+dataArray[i].title+'</strong><span>'+dataArray[i].description+'</span><video controls poster='+dataArray[i].cover+'><source src='+dataArray[i].mp4_url+'></video></div></li>';
+  		$("#thirdPageTable").append(cell);
+  	}
+  }
+   
+   
+    </script>
+    
+    <style type="text/css">
+    		.mui-bar-nav{
+    			background: #dc3137;
+    		}
+    		.mui-bar-nav .mui-title img{
+    			width: 14%;
+    			margin-top: 10px;
+    		}
+    		
+    		#one-tab-title{
+    			background: white;
+    			height: 40px;
+    		}
+    		#one-tab-title a{
+    			color: black;
+    			margin-left: 6%;
+    			line-height: 40px;
+    		}
+    		
+    		#one-tab-title a:hover{
+    			color: #dc3137;
+    		}
+    		
+    		
+    		.mui-slider .mui-slider-group .mui-slider-item img{
+    			width:100%;
+    			height: 200px;
+    		}
+    		
+    		.content-div{
+    			display: none;
+    		}
+    		#yueduList li img{
+    			width: 100%;
+    			height: auto;
+    		}
+    		#yueduList li p{
+    			text-align: center;
+    		}
+    		
+    		
+    </style>
+    
+</head>
+<body>
+	
+	
+	<!--导航条开始-->
+	<header class="mui-bar mui-bar-nav">
+	    <h1 class="mui-title">
+	    	<img src="images/navbar_netease@2x.png"/>
+	    </h1>
+	</header>
+	<!--导航条结束-->
+	
+	<!--tabbar开始-->
+
+		<nav class="mui-bar mui-bar-tab">
+			<a href="#" class="mui-tab-item mui-active" tabindex="0">		
+				
+				<span class="mui-icon iconfont icon-xinwen"></span>
+				<span class="mui-tab-label">新闻</span>
+			</a>
+			
+			
+			<a href="#" class="mui-tab-item" tabindex="1">
+				<span class="mui-icon iconfont icon-yuedu"></span>
+				<span class="mui-tab-label">阅读</span>
+			</a>
+			
+			
+			<a href="#" class="mui-tab-item" tabindex="2">
+				<span class="mui-icon iconfont icon-bofang"></span>
+				<span class="mui-tab-label">视频</span>
+			</a>
+			
+			
+			<a href="#" class="mui-tab-item" tabindex="3">
+				<span class="mui-icon iconfont icon-wode"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+			
+			
+		</nav>
+	<!--tabbat结束-->
+		
+	
+	
+	<!--主体内容开始-->
+	<div class="mui-content mui-scroll-wrapper" id="refreshContainer">
+		<div class="mui-scroll">
+			
+			<!--第一个页面开始-->
+		<div class="content-div" style="display: block;">
+				<!--头部-->
+				<div id="one-tab-title">
+					<a >头条</a>
+					<a >热点</a>
+					<a>娱乐</a>
+					<a>财经</a>
+					<a>体育</a>
+					<a><img src="images/comment_arrow_down@2x.png"/></a>
+				</div>
+				
+				<!--轮播图开始-->
+					
+					<div class="mui-slider">
+						<div class="mui-slider-group mui-slider-loop" id="sliderImageGroup">	
+						</div>
+						
+						<div class="mui-slider-indicator" id="sliderPageControl">
+						
+						</div>
+						
+					</div>
+				<!--轮播图结束-->
+	
+				<div class="">
+					<ul class="mui-table-view" id="xinwenList">
+						
+					</ul>
+					
+				</div>	
+			
+				
+				
+				
+		</div >
+		<!--第一个页面结束-->
+		
+		<!--第二个页面开始-->
+		<div class="content-div">
+			<ul class="mui-table-view" id="yueduList">
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://g.hiphotos.baidu.com/image/pic/item/0ff41bd5ad6eddc447d63bbc3edbb6fd52663347.jpg"/>
+						<p>这是美女</p>
+					</div>
+				</li>
+				
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/08f790529822720ea5d058ba7ccb0a46f21fab50.jpg"/>
+						<p>这是我</p>
+					</div>
+				</li>
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/08f790529822720ea5d058ba7ccb0a46f21fab50.jpg"/>
+						<p>这是我</p>
+					</div>
+				</li>
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/08f790529822720ea5d058ba7ccb0a46f21fab50.jpg"/>
+						<p>这是我</p>
+					</div>
+				</li>
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/08f790529822720ea5d058ba7ccb0a46f21fab50.jpg"/>
+						<p>这是我</p>
+					</div>
+				</li>
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/08f790529822720ea5d058ba7ccb0a46f21fab50.jpg"/>
+						<p>这是我</p>
+					</div>
+				</li>
+				<li class="mui-table-view-cell">
+					<div>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/08f790529822720ea5d058ba7ccb0a46f21fab50.jpg"/>
+						<p>这是我</p>
+					</div>
+				</li>
+				
+				
+			</ul>
+		</div>
+		<!--第二个页面结束-->
+		
+		<!--第三个页面开始-->
+		<div class="content-div">
+			<ul class="mui-table-view" id="thirdPageTable">
+				
+			</ul>	
+				
+				
+		</div>
+		<!--第三个页面结束-->
+		
+		
+		
+		<!--第四个页面开始-->
+		<div class="content-div">
+			
+		</div>
+		<!--第四个页面结束-->
+		</div>
+		
+	    
+	</div>
+	<!--主体内容结束-->
+</body>
+</html>
